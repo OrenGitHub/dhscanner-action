@@ -1,4 +1,5 @@
 name: dhscanner
+description: SAST engine with a cross file, inter-procedural dataflow and other deep analyses
 
 on:
   push:
