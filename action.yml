@@ -1,5 +1,8 @@
 name: dhscanner
 description: SAST engine with a cross file, inter-procedural dataflow and other deep analyses
+branding:
+  icon: shield
+  color: blue
 
 on:
   push:
