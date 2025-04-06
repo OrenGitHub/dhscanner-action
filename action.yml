@@ -4,34 +4,3 @@ author: OrenGitHub
 branding:
   icon: shield
   color: blue
-
-runs:
-  using: "composite"
-  steps:
-    - name: clone dhscanner (with submodules)
-      run: |
-        git clone --recurse-submodules https://github.com/OrenGitHub/dhscanner
-        cd dhscanner
-        docker compose -f compose.rel.x64.yaml up -d
-      shell: bash
-
-    - name: send the whole repo to dhscanner
-      run: |
-        tar -cz . | curl -v -X POST \
-          -H "X-Code-Sent-To-External-Server: false" \
-          -H "Content-Type: application/octet-stream" \
-          --data-binary @- http://127.0.0.1:443/ > output.sarif
-      shell: bash
-
-    - name: Upload SARIF results
-      uses: github/codeql-action/upload-sarif@v3
-      with:
-        sarif_file: output.sarif
-
-    - name: fail workflow if sarif contains findings
-      run: |
-        if jq '.runs[].results | length > 0' output.sarif | grep -q 'true'; then
-          echo "Sarif findings detected, failing the workflow"
-          exit 1
-        fi
-      shell: bash
