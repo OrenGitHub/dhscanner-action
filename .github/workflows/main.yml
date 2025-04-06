@@ -12,4 +12,4 @@ jobs:
   run-dhscanner:
     runs-on: ubuntu-latest
     steps:
-      - uses: OrenGitHub/dhscanner-action@v1.0.4
+      - uses: OrenGitHub/dhscanner-action@v1.0.5
