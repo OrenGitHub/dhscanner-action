@@ -1,5 +1,5 @@
 name: dhscanner
-description: SAST engine with a cross file, inter-procedural dataflow and other deep analyses
+description: SAST engine with cross-file, inter-procedural taint analysis
 branding:
   icon: shield
   color: blue
@@ -30,27 +30,13 @@ jobs:
         with:
           ref: ${{ github.ref }}
 
-      - name: send healthcheck to dhscanner
-        run: |
-          curl -X GET \
-            -H "Authorization: Bearer ${APPROVED_BEARER_TOKEN_0}" \
-            -H "Accept: application/json" \
-            http://127.0.0.1:443/${APPROVED_URL_0_HEALTHCHECK}
-        env:
-          APPROVED_BEARER_TOKEN_0: ${{ secrets.APPROVED_BEARER_TOKEN_0 }}
-          APPROVED_URL_0_HEALTHCHECK: ${{ secrets.APPROVED_URL_0_HEALTHCHECK }}
-
       - name: send the whole repo to dhscanner
+        uses: OrenGitHub/dhscanner-action@v1.0.1
         run: |
           tar -cz . | curl -v -X POST \
-            -H "Authorization: Bearer ${APPROVED_BEARER_TOKEN_0}" \
+            -H "X-Code-Sent-To-External-Server: false" \
             -H "Content-Type: application/octet-stream" \
-            -H "X-Directory-Name: ${{ github.event.repository.name }}" \
-            -H "Ignore-Testing-Code: true" \
-            --data-binary @- http://127.0.0.1:443/${APPROVED_URL_0} > output.sarif
-        env:
-          APPROVED_BEARER_TOKEN_0: ${{ secrets.APPROVED_BEARER_TOKEN_0 }}
-          APPROVED_URL_0: ${{ secrets.APPROVED_URL_0 }}
+            --data-binary @- http://127.0.0.1:443/ > output.sarif
 
       - name: Upload SARIF results
         uses: github/codeql-action/upload-sarif@v3
