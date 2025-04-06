@@ -19,7 +19,6 @@ runs:
       uses: actions/checkout@v4
       with:
         ref: ${{ github.ref }}
-      shell: bash
 
     - name: send the entire repo to dhscanner
       run: |
