@@ -13,11 +13,13 @@ runs:
         git clone --recurse-submodules https://github.com/OrenGitHub/dhscanner
         cd dhscanner
         docker compose -f compose.rel.x64.yaml up -d
+      shell: bash
 
     - name: checkout specific tag
       uses: actions/checkout@v4
         with:
           ref: ${{ github.ref }}
+      shell: bash
 
     - name: send the entire repo to dhscanner
       run: |
