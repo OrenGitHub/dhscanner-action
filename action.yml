@@ -1,6 +1,39 @@
 name: dhscanner
-description: SAST engine with cross-file, inter-procedural taint analysis
+description: Cross-file SAST engine with inter-procedural taint analysis
 author: OrenGitHub
 branding:
   icon: shield
   color: blue
+
+runs:
+  using: composite
+  steps:
+    - name: clone dhscanner (with submodules)
+        run: |
+          git clone --recurse-submodules https://github.com/OrenGitHub/dhscanner
+          cd dhscanner
+          docker compose -f compose.rel.x64.yaml up -d
+        env:
+          APPROVED_BEARER_TOKEN_0: ${{ secrets.APPROVED_BEARER_TOKEN_0 }}
+          APPROVED_URL_0: ${{ secrets.APPROVED_URL_0 }}
+
+    - name: checkout specific tag
+      uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+
+    - name: send the entire repo to dhscanner
+      run: |
+        tar -cz . | curl -v -X POST \
+          -H "X-Code-Sent-To-External-Server: false" \
+          -H "Content-Type: application/octet-stream" \
+          --data-binary @- http://127.0.0.1:443/ > output.sarif
+      shell: bash
+
+    - name: fail if SARIF contains findings
+      run: |
+        if jq '.runs[].results | length > 0' output.sarif | grep -q 'true'; then
+          echo "Sarif findings detected, failing the workflow"
+          exit 1
+        fi
+      shell: bash
